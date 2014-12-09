@@ -1,5 +1,7 @@
 # coding=utf-8
 
+import os.path
+from functools import wraps
 from operator import attrgetter
 from urlparse import urlparse
 
@@ -13,8 +15,9 @@ def get_or_none(attr):
 
 
 def check_db(func):
+    @wraps(func)
     def deco(*args):
-        if func.im_class._db is None:
+        if args[0]._db is None:
             print '[ERROR]Please make connection: `con = %db_connect xx` or `%use_credentials xx` first!'  # noqa
             return
         return func(*args)
@@ -42,7 +45,7 @@ class SQLDB(Magics, Configurable):
         if not uri.scheme:
             params = {
                 'dbtype': 'sqlite',
-                'filename': '~/db.sqlite'
+                'filename': os.path.join(os.path.expanduser('~'), 'db.sqlite')
             }
         else:
             params = {
@@ -76,10 +79,11 @@ class SQLDB(Magics, Configurable):
     @check_db
     def table(self, *line):
         l = len(line)
-        if not l:
-            return self._db.tables
-        elif l == 1:
-            return attrgetter(line)(self._db.tables)
+        if l == 1:
+            if not line[0]:
+                return self._db.tables
+            else:
+                return attrgetter(line[0])(self._db.tables)
         else:
             data = self._db.tables
             for p in line:
@@ -111,7 +115,7 @@ class SQLDB(Magics, Configurable):
         if not line:
             print '[ERROR]Please Specify sql query'
         else:
-            return self._db.query(query)
+            return self._db.query(line)
 
 
 def load_ipython_extension(ipython):
