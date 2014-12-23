@@ -19,15 +19,15 @@ Install
 use github:
 
     In [1]: %install_ext https://raw.githubusercontent.com/dongweiming/idb/master/idb.py
-    In [2]: %load_ext idb.py
+    In [2]: %load_ext idb
 
-    git clone https://github.com/
+    git clone https://github.com/dongweiming/idb
     cd idb
     python setup.py install
 
 use pip:
 
-    pip install idb
+    pip install ipython-db
     In [1]: %load_ext idb
 
 Usage
