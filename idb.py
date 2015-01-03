@@ -48,6 +48,7 @@ class SQLDB(Magics):
             }
         else:
             params = {
+                'dbtype': get_or_none(uri.scheme),
                 'username': get_or_none(uri.username),
                 'password': get_or_none(uri.password),
                 'hostname': get_or_none(uri.hostname),
