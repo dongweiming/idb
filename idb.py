@@ -1,9 +1,14 @@
 # coding=utf-8
 
+from __future__ import print_function
+
 import os.path
 from functools import wraps
 from operator import attrgetter
-from urlparse import urlparse
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 
 from db import DB
 from IPython.core.magic import Magics, magics_class, line_magic
@@ -17,7 +22,8 @@ def check_db(func):
     @wraps(func)
     def deco(*args):
         if args[0]._db is None:
-            print '[ERROR]Please make connection: `con = %db_connect xx` or `%use_credentials xx` first!'  # noqa
+            print('[ERROR]Please make connection: `con = %db_connect xx` '
+                  'or `%use_credentials xx` first!')  # noqa
             return
         return func(*args)
     return deco
@@ -32,7 +38,7 @@ class SQLDB(Magics):
         """Conenct to database in ipython shell.
         Examples::
             %db_connect
-            %db_connect postgresql://user:pass@localhost:port/database
+            %db_connect postgres://user:pass@localhost:port/database
         """
         uri = urlparse(parameter_s)
 
@@ -68,10 +74,10 @@ class SQLDB(Magics):
     @check_db
     def save_credentials(self, parameter_s):
         if not parameter_s:
-            print '[ERROR]Please Specify credentials name'
+            print('[ERROR]Please Specify credentials name')
         else:
             self._db.save_credentials(profile=parameter_s)
-            print 'Save credentials [] successful!'.format(parameter_s[0])
+            print('Save credentials [] successful!'.format(parameter_s[0]))
 
     @line_magic('use_credentials')
     @check_db
@@ -79,9 +85,9 @@ class SQLDB(Magics):
         self._db = DB(profile=credential)
         return self._db
 
-    @line_magic('table')
+    @line_magic('tables')
     @check_db
-    def table(self, parameter_s):
+    def tables(self, parameter_s):
         p = parameter_s.split()
         l = len(p)
         if l == 1:
@@ -103,7 +109,7 @@ class SQLDB(Magics):
     def find_column(self, parameter_s):
         p = parameter_s.split()
         if not parameter_s:
-            print '[ERROR]Please Specify column wildcard'
+            print('[ERROR]Please Specify column wildcard')
         else:
             return self._db.find_column(*p)
 
@@ -111,7 +117,7 @@ class SQLDB(Magics):
     @check_db
     def find_table(self, parameter_s):
         if not parameter_s:
-            print '[ERROR]Please Specify table wildcard'
+            print('[ERROR]Please Specify table wildcard')
         else:
             return self._db.find_table(parameter_s)
 
@@ -119,7 +125,7 @@ class SQLDB(Magics):
     @check_db
     def query(self, parameter_s):
         if not parameter_s:
-            print '[ERROR]Please Specify sql query'
+            print('[ERROR]Please Specify sql query')
         else:
             return self._db.query(parameter_s)
 
@@ -127,9 +133,9 @@ class SQLDB(Magics):
     @check_db
     def query_from_file(self, parameter_s):
         if not parameter_s:
-            print '[ERROR]Please Specify sql filepath'
+            print('[ERROR]Please Specify sql filepath')
         elif not os.path.exists(parameter_s):
-            print '[ERROR]This file {} not exists'.format(parameter_s)
+            print('[ERROR]This file {} not exists'.format(parameter_s))
         else:
             return self._db.query_from_file(parameter_s)
 
